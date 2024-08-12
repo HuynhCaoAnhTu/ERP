@@ -8,39 +8,12 @@
 
     }
 </style>
-<div class="row">
-    <div class="col-md col-md-offset-0">
-        <div class="panel panel-primary">
 
-            <div class="panel-body">
-                <form action='<?php echo base_url($controller . "/upload") ?>' method="post" enctype="multipart/form-data">
-                    <!-- <div class="form-information">
-                        <div class="form-group">
-                            <label for="images" class="col-form-label">Images</label>
-                            <input style="width:100px" type="file" name="images[]" id="images" style="width:50%" multiple class="form-control" required>
-                        </div>
-                        <div class="form-group" style="width: 200px;">
-                            <label for="product_location" class="col-form-label"> Travel location: <span class="text-danger">*</span> </label>
-                            <select id="product_location" name="product_location[]" multiple="multiple" class="form-select select2" required>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group" id="image_preview" style="width:100%;">
-                    
-                    </div> -->
-
-
-                    <button style="margin-bottom:20px ;" class="btn btn-success" type="submit">Save</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="card">
     <div class="card-header">
         <div class="row">
             <div class="col-10 mt-2">
-                <h3 class="card-title">images</h3>
+                <h3 class="card-title"><b>Image table</b></h3>
             </div>
             <div class="col-2">
                 <button type="button" class="btn float-right btn-success" onclick="save()" title="<?= lang("App.new") ?>"> <i class="fa fa-plus"></i> <?= lang('App.new') ?></button>
@@ -150,7 +123,7 @@
                     icon: 'warning',
                     confirmButtonColor: '#3085d6',
                     confirmButtonText: "Choose again"
-                  
+
                 })
                 $('#images').val('');
             } else {
