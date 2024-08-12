@@ -1,0 +1,42 @@
+.select_option {
+    display: flex;
+    justify-content: flex-start;
+    gap: 30px;
+}
+
+.table_onsale_information td {
+    padding: 15px 0px;
+}
+
+.table_onsale_information th {
+    vertical-align: middle;
+}
+
+.table_onsale_price_infor th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.col_action {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.blackout_content {
+    width: 50%;
+    padding: 0 20px;
+    flex-direction: column;
+}
+
+.note-editable {
+    HEIGHT: 210PX;
+}
+
+.onsales_info_label {
+    margin-bottom: 10px;
+
+}
