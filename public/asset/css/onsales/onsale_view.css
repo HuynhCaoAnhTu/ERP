@@ -1,0 +1,18 @@
+.onsales_action {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 20px;
+
+}
+
+.onsales_filter {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+.filter_select_content {
+    width: 75%;
+}

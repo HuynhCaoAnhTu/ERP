@@ -91,6 +91,8 @@ $routes->group('product', ['filter' => 'authGuard'], function ($routes) {
 	$routes->get('updateOnsales', 'Product\ProductOnsalesController::updateOnsales');
 	$routes->get('getPricesTemp', 'Product\ProductOnsalesController::getPricesTemp');
 	$routes->post('getPricesTemp', 'Product\ProductOnsalesController::getPricesTemp');
+	$routes->get('getBlackoutsTemp', 'Product\ProductOnsalesController::getBlackoutsTemp');
+	$routes->post('getBlackoutsTemp', 'Product\ProductOnsalesController::getBlackoutsTemp');
 	$routes->get('viewFullProduct/(:num)', 'Product\ProductAdminController::viewFullProduct/$1');
 	$routes->post('loadPacket', 'Product\ProductAdminController::loadPacket');
 

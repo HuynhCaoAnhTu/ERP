@@ -8,7 +8,7 @@
     </div>
     <div class="col-md-7">
         <h4>Onsales Prices</h4>
-        <table class="table table-bordered">
+        <table id="onsales_price_table" class="table table-bordered">
             <thead>
                 <tr>
                     <th scope="col" style="width: 6%;" rowspan="2">Item</th>
@@ -41,16 +41,16 @@
 
                 ?>
                     <tr>
-                        <td><?= $sku->price_group ?></td>
-                        <td><?= $sku->price_valied_from ?></td>
-                        <td><?= $sku->price_valied_to ?></td>
-                        <td><?= $price_2_pax ?></td>
-                        <td><?= $price_3_4_pax ?></td>
-                        <td><?= $price_5_6_pax ?></td>
-                        <td><?= $price_7_8_pax ?></td>
-                        <td><?= $price_9_10_pax ?></td>
-                        <td><?= $price_11_14_pax ?></td>
-                        <td><?= $price_supp_add ?></td>
+                        <td class="text-mid"><?= $sku->price_group ?></td>
+                        <td class="text-mid"><?= $sku->price_valied_from ?></td>
+                        <td class="text-mid"><?= $sku->price_valied_to ?></td>
+                        <td class="text-end"><?= $price_2_pax ?></td>
+                        <td class="text-end"><?= $price_3_4_pax ?></td>
+                        <td class="text-end"><?= $price_5_6_pax ?></td>
+                        <td class="text-end"><?= $price_7_8_pax ?></td>
+                        <td class="text-end"><?= $price_9_10_pax ?></td>
+                        <td class="text-end"><?= $price_11_14_pax ?></td>
+                        <td class="text-end"><?= $price_supp_add ?></td>
                         <!-- <td> <?php if ($sku->price_vat == 0) {
                                         echo ('Chưa VAT');
                                     } else {
@@ -63,31 +63,37 @@
                 <?php } ?>
             </tbody>
         </table>
-
-        <table class="table table-bordered">
-        <h4>Onsales Blackout</h4>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>From</th>
-                    <th>To </th>
-
-                </tr>
-
-            </thead>
-            <tbody>
-                <?php
-                $tt = 0;
-                foreach ($blackouts as $blackout) {
-
-                ?>
+        <?php
+        if (count($blackouts) > 0) {
+        ?>
+            <table class="table table-bordered">
+                <h4>Onsales Blackout</h4>
+                <thead>
                     <tr>
-                        <td><?= $blackout->blackout_name ?></td>
-                        <td><?= $blackout->blackout_from ?></td>
-                        <td><?= $blackout->blackout_to ?></td>
+                        <th>Name</th>
+                        <th>From</th>
+                        <th>To </th>
+
                     </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+
+                </thead>
+                <tbody>
+                    <?php
+                    $tt = 0;
+                    foreach ($blackouts as $blackout) {
+
+                    ?>
+                        <tr>
+                            <td><?= $blackout->blackout_name ?></td>
+                            <td><?= $blackout->blackout_from ?></td>
+                            <td><?= $blackout->blackout_to ?></td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        <?php
+        }
+        ?>
+
     </div>
 </div>

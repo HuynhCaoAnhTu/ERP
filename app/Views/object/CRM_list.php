@@ -307,12 +307,11 @@
       urlController = '<?= base_url($controller ."/add") ?>';
       submitText = '<?= lang("App.save") ?>';
       $('#model-header').removeClass('bg-info').addClass('bg-success');
-      $("#info-header-modalLabel").text('<?= lang("App.add") ?> - <?= $ogroup ?>: <?= $ostylename ?> ');
+      $("#info-header-modalLabel").text('<?= lang("App.add") ?> - <?= $ogroup ?>: ');
       $("#form-btn").text(submitText);
       $('#data-modal').modal('show');
 			$("#data-form #ogroup").val('<?= $ogroup ?>');
-			$("#data-form #ostyle").val('<?= $ostyle ?>');
-			$("#data-form #ostylecode").val('<?= strtoupper($ostylecode) ?>');
+		
 			$("#data-form #ocode").val('');
 			$("#data-form #location_id").val(0);
 			$("#data-form #id_creat").val('<?= session('id');?>');
@@ -320,7 +319,7 @@
 			
 	  
     } else { //edit
-      urlController = '<?= base_url($controller . "/edit") ?>';
+      urlController = '<?= base_url($controller . "/public/edit") ?>';
       submitText = '<?= lang("App.update") ?>';
 	  setAjaxCSRF();//********
       $.ajax({
@@ -335,14 +334,14 @@
 			setNewCSRF(response.csrf_token);//********
 			response = response.data;//********
           $('#model-header').removeClass('bg-success').addClass('bg-info');
-          $("#info-header-modalLabel").text('<?= lang("App.edit") ?> - <?= $ogroup ?>: <?= $ostylename ?> ');
+          $("#info-header-modalLabel").text('<?= lang("App.edit") ?> - <?= $ogroup ?>: ');
           $("#form-btn").text(submitText);
           $('#data-modal').modal('show');
           //insert data to form
           	$("#data-form #obj_id").val(response.obj_id);
 			$("#data-form #ogroup").val(response.ogroup);
-			$("#data-form #ostyle").val(response.ostyle);
-			$("#data-form #ostylecode").val('<?= strtoupper($ostylecode) ?>');
+			// $("#data-form #ostyle").val(response.ostyle);
+
 			$("#data-form #ocode").val(response.ocode);
 			$("#data-form #oname").val(response.oname);
 			$("#data-form #location_id").val(response.location_id).trigger('change');

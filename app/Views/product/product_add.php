@@ -3,7 +3,7 @@
 
 <style>
 	.modal-xxl {
-		max-width: 90vw;
+		max-width: 90%;
 	}
 
 	#form_upload_file {
@@ -257,7 +257,7 @@
 									<div class="row">
 										<div class="form-group mb-3">
 											<label for="product_status" class="col-form-label"> Product status: <span class="text-danger">*</span> </label>
-											<select id="product_status" name="product_status" class="form-select" disabled>
+											<select id="product_status" name="product_status" class="form-select">
 												<option value="0">Draf</option>
 												<option value="1">Published</option>
 												<option value="-1">Deleted</option>
@@ -380,7 +380,27 @@
 			<!-- /TAB RATES-->
 			<div class="tab-pane fade" id="rates" role="tabpanel" aria-labelledby="rates-tab">
 				<div class="row" id="tab_onsales" data-tab="tab2">
-					ONSALES
+					<div class="onsales_action">
+						<div><button class="dt-button btn btn-success" tabindex="0" type="button" onclick="select_onsales_style()"><span>+ Add new</span></button></div>
+
+						<div class="col-md-3 onsales_filter">
+							<div><b>Show by:</b> </div>
+							<div class="filter_select_content">
+								<select id="onsales_filter_select" class="form-select" onchange="onsales_filter()">
+									<option value="9" selected>All</option>
+									<option value="1"> Actived</option>
+									<option value="0">Darf</option>
+									<option value="2">Inactive</option>
+									<option value="-1">Del</option>
+									<option value="3">Sold out</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<hr>
+				</div>
+				<div class="onsales_price_content">
+
 				</div>
 			</div>
 			<!-- /TAB Transactions-->
@@ -490,6 +510,9 @@
 				<div class="modal-body" id="onsales-form" name="onsales-form">
 
 				</div>
+				<div class="modal-footer">
+					
+				</div>
 			</div><!-- /.modal-content -->
 		</div><!-- /.modal-dialog -->
 	</div>
@@ -561,6 +584,7 @@
 	var submitText = '';
 	var id_product = 0;
 	var id_product = parseInt('<?php echo $translate_id; ?>');
+	var filter_onsales_selected = 9;
 
 	function getUrl() {
 		return urlController;
@@ -591,7 +615,10 @@
 				}
 			});
 		});
+
+
 	});
+
 
 	function getSubmitText() {
 		return submitText;
@@ -648,7 +675,14 @@
 					if (selectedCheckboxes > maxCheckboxes + 1) {
 						// Bỏ chọn checkbox hiện tại
 						$(this).prop('checked', false);
-						alert('Bạn chỉ được chọn tối đa ' + maxCheckboxes + ' ảnh');
+						Swal.fire({
+							toast: true,
+							position: 'top-end',
+							icon: 'error',
+							title: 'Upload limit is ' + maxCheckboxes + ' images',
+							showConfirmButton: false,
+							timer: 2500
+						})
 					}
 				});
 
@@ -725,7 +759,10 @@
 	$(document).ready(function() {
 		$('.summernote').summernote();
 		$('.select2').select2();
-
+		$('#data-modal-onsales').modal({
+			backdrop: 'static',
+			keyboard: false
+		});
 		$('div.note-editable').css({
 			'min-height': 150 + 'px'
 		});
@@ -823,7 +860,7 @@
 					formAction = 'addProduct';
 				} else {
 					formAction = 'saveProduct';
-					$('#form-title').html('EDIT PRODUCT: #' + response.product.id + ' (Last updated:' + response.update_on + ')');
+					$('#form-title').html('EDIT PRODUCT: #' + response.product.id + ' (Last updated:' + response.product.update_on + ')');
 					$("#data-form #product_id").val(response.product.id);
 					$("#data-form #product_code").val(response.product.product_code);
 					$("#data-form #product_name").val(response.product.product_name);
@@ -959,8 +996,28 @@
 	function save_product() {
 		$('#data-form').submit();
 	}
-
-
+	// onsales filter
+	function onsales_filter() {
+		var selectElement = document.getElementById('onsales_filter_select');
+		filter_onsales_selected = selectElement.value;
+		console.log(filter_onsales_selected)
+		$.ajax({
+			url: '<?php echo base_url($controller . "/listOnSales") ?>',
+			type: 'post',
+			data: {
+				id_product: id_product,
+				id_status: filter_onsales_selected
+			},
+			dataType: 'json',
+			success: function(data) {
+				// console.log('AJAX response:', data);
+				$('.onsales_price_content').html(data.html);
+			},
+			error: function() {
+				$('.onsales_price_content').html('PRODUCT NOT FOUND!');
+			}
+		});
+	}
 	//TAB rates-tab
 	$('#rates-tab').click(function() {
 		if (id_product > 0) {
@@ -968,19 +1025,20 @@
 				url: '<?php echo base_url($controller . "/listOnSales") ?>',
 				type: 'post',
 				data: {
-					id_product: id_product
+					id_product: id_product,
+					id_status: 9
 				},
 				dataType: 'json',
 				success: function(data) {
 					// console.log('AJAX response:', data);
-					$('#tab_onsales').html(data.html);
+					$('.onsales_price_content').html(data.html);
 				},
 				error: function() {
-					$('#tab_onsales').html('PRODUCT NOT FOUND!');
+					$('.onsales_price_content').html('PRODUCT NOT FOUND!');
 				}
 			});
 		} else {
-			$('#tab_onsales').html('NOT FOUND!');
+			$('onsales_price_content').html('NOT FOUND!');
 		}
 
 	});
@@ -991,14 +1049,10 @@
 		var $confirm = $('#modal-onsales-style');
 		$confirm.modal('show');
 		$('#modal-1').off('click').click(function() {
-
 			$confirm.modal('hide');
-			$('#modal-onsales-style').on('hidden.bs.modal', function() {
-				// Remove the backdrop of modal1
-				$('.modal-backdrop').remove();
-			});
-			add_onsales_1();
-
+			$('.overlay').remove();
+			// Xóa lớp phủ
+			add_onsales_1()
 
 		});
 		$('#modal-2').off('click').click(function() {
@@ -1013,7 +1067,9 @@
 		});
 		$('#modal-4').off('click').click(function() {
 			$confirm.modal('hide');
-			add_onsales_2()
+
+			add_onsales_4();
+
 		});
 
 		$('#modal-close').off('click').click(function() {
@@ -1023,21 +1079,52 @@
 		return dfd.promise();
 	}
 
+
 	function add_onsales_1() {
 		$.ajax({
 			url: '<?php echo base_url($controller . "/getTempOnsalesForm") ?>',
 			type: 'post',
 			data: {
-				id_product: id_product
+				id_product: id_product,
+				onsale_style: 1
 			},
 			dataType: 'json',
 			success: function(response) {
-				$('#model-header').removeClass('bg-success').addClass('bg-info');
-				$("#info-header-modalLabel").text('Add');
+				$('#model-header').addClass('bg-info');
+				$("#info-header-modalLabel").text('Single-ADD');
 				$("#form-btn").text(submitText);
 				$("#onsales-form").html(response.html);
 				$('.modal-backdrop').remove();
 				$('#data-modal-onsales').modal('show');
+
+
+			},
+			error: function(xhr, status, error) {
+				console.error('AJAX Error:', status, error); // Kiểm tra lỗi nếu có
+				console.error(xhr.responseText); // In ra nội dung phản hồi lỗi
+			}
+		});
+
+	}
+
+	function add_onsales_4() {
+		$.ajax({
+			url: '<?php echo base_url($controller . "/getTempOnsalesForm") ?>',
+			type: 'post',
+			data: {
+				id_product: id_product,
+				onsale_style: 4
+			},
+			dataType: 'json',
+			success: function(response) {
+				$('#model-header').addClass('bg-info');
+				$("#info-header-modalLabel").text('InBound-ADD');
+				$("#form-btn").text(submitText);
+				$("#onsales-form").html(response.html);
+				$('.modal-backdrop').remove();
+				$('#data-modal-onsales').modal('show');
+				$("#data-modal-onsales .modal-footer").html(`<button type="submit" class="btn btn-success mr-2" id="form-onsales-btn" onclick="save_onsale()"><?= lang("App.save") ?></button>
+					<button type="button" class="btn btn-danger" data-bs-dismiss="modal"><?= lang("App.cancel") ?></button> `);
 
 
 			},
@@ -1088,10 +1175,6 @@
 		alert('select3');
 	}
 
-	function add_onsales_4() {
-		alert('select4');
-	}
-
 	// Edit Ónales
 	function edit_onsales(id_onsales, act) {
 		// reset the form 
@@ -1122,6 +1205,10 @@
 					$("#form-btn").text(submitText);
 					$("#onsales-form").html(response.html);
 					$('#data-modal-onsales').modal('show');
+					$("#data-modal-onsales .modal-footer").html(`<button type="button" class="btn btn-success mr-2" id="form-onsales-btn" onclick="update_onsale()"><?= lang("App.save") ?></button>
+		<button type="button" class="btn btn-danger" data-bs-dismiss="modal"><?= lang("App.cancel") ?></button>`);
+
+
 				}
 			});
 

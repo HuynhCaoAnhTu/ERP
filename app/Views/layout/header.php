@@ -32,7 +32,6 @@
   <link rel="stylesheet" href="<?= base_url('asset/css/summernote.min.css') ?>">
   <link rel="stylesheet" href="<?= base_url('asset/css/upload_file.css') ?>">
   <link rel="stylesheet" href="<?= base_url('asset/css/index.css') ?>">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
   <!-- Summernote CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote.min.css" rel="stylesheet">
 

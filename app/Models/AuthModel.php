@@ -26,5 +26,12 @@ class AuthModel extends Model
 	//		$result= $resultsql->getResultArray(); // do query
 		return $result;
 	}
+
+	public function getUserNameById($id){		
+		$db = db_connect();	
+		$result = $db->query("SELECT `email`  FROM `erp_auth` WHERE id_auth  = '".$id."' ")->getResult();
+//		$result= $resultsql->getResultArray(); // do query
+	return $result;
+}
 	
 }

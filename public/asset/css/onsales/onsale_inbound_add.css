@@ -28,7 +28,6 @@
 
 .blackout_content {
     width: 50%;
-    padding: 0 20px;
     flex-direction: column;
 }
 
@@ -40,3 +39,21 @@
     margin-bottom: 10px;
 
 }
+
+.blackout_temp_content {
+    margin-bottom: 10px;
+}
+
+.table_onsale_black_out {
+    margin: 0 0 10px 10px;
+}
+
+#data-form-onsales {}
+
+/* .footer_onsale_modal {
+    position: sticky;
+    top: 0;
+    padding: 5px;
+    background-color: #cae8ca;
+    border: 2px solid #4CAF50;
+} */

@@ -277,8 +277,7 @@
 			<p id="msg-123"></p>
 		</div>
 		-->
-		<div class="modal-footer justify-content-between">
-			<button type="button" id= "modal-vi" class="btn btn-danger">Tiếng Việt</button>
+		<div class="modal-footer justify-content-evenly">
 			<button type="button" id= "modal-en"class="btn btn-danger">English</button>
 			<button type="button" id= "modal-close" class="btn btn-success" data-dismiss="modal">Close</button>
 		</div>
@@ -312,7 +311,7 @@
 	  "pageLength": 30,
 	  "select": true,
 	   "dom": '<"row" <"col-sm-12 col-md-6"B><"col-sm-12 col-md-6"f>><"row"<t>><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>', //<lf<t>ip>
-	  "buttons": [{text: '+ TẠO MỚI',className: 'btn btn-success',action: function ( e, dt, node, config ) {select_lang(); }}],	  
+	  "buttons": [{text: '+ ADD NEW',className: 'btn btn-success',action: function ( e, dt, node, config ) {select_lang(); }}],	  
     
       "ajax": {
         "url": '<?php echo base_url($controller . "/getAll") ?>',
@@ -342,19 +341,20 @@
   
 function select_lang() {
   var dfd = jQuery.Deferred();
-  var $confirm = $('#modal-lang');
-  $confirm.modal('show');
-  $('#modal-vi').off('click').click(function () {
-	  window.location.href = '<?= base_url("/product/add_new/vi") ?>';
-  });
-    $('#modal-en').off('click').click(function () {
-    window.location.href = '<?= base_url("/product/add_new/en") ?>';
-  });
+  window.location.href = '<?= base_url("/product/add_new/en") ?>';
+//   var $confirm = $('#modal-lang');
+//   $confirm.modal('show');
+//   $('#modal-vi').off('click').click(function () {
+// 	  window.location.href = '<?= base_url("/product/add_new/vi") ?>';
+//   });
+//     $('#modal-en').off('click').click(function () {
+//     window.location.href = '<?= base_url("/product/add_new/en") ?>';
+//   });
 
-  $('#modal-close').off('click').click(function () {
-    $confirm.modal('hide');
-    return 0;
-  });
+//   $('#modal-close').off('click').click(function () {
+//     $confirm.modal('hide');
+//     return 0;
+//   });
   return dfd.promise();
 }
 

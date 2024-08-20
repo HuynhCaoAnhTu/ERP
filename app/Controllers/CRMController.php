@@ -40,9 +40,9 @@ class CRMController extends BaseController
 					'controller'	=> 'customers',
 					'title'     	=> 'CRM manager',
 					'ogroup'	=> $this->ogroup,
-//					'ostyle' => $supname['id'],
-//					'ostylename' => $supname['gname'],
-//					'ostylecode' => $sup
+					'ostyle' => 1,
+					'ostylename' => 'CRM',
+					'ostylecode' => 0
 				];
 			return view('object/CRM_list', $data);
 	}

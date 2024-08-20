@@ -13,7 +13,7 @@
           <nav class="mt-2">
             <!-- Sidebar Menu -->
             <ul class="nav nav-pills nav-sidebar flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-              <li class="nav-item has-treeview">
+              <!-- <li class="nav-item has-treeview">
                 <a href="javascript:;" class="nav-link">
                   <i class="nav-icon fas fa-file-invoice-dollar"></i>
                   <p>
@@ -55,103 +55,20 @@
                     </a>
                   </li>
                 </ul>
-              </li>
+              </li> -->
 
 
               <li class="nav-item">
                 <a href="<?= base_url() ?>products" class="nav-link">
                   <i class="nav-icon fas fa-umbrella-beach"></i>
-                  <p>SẢN PHẨM</p>
+                  <p>PRODUCTS</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="<?= base_url() ?>upload" class="nav-link">
                   <i class="nav-icon fas fa-umbrella-beach"></i>
-                  <p>HÌNH ẢNH</p>
+                  <p>IMAGES</p>
                 </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="<?= base_url() ?>bookings" class="nav-link">
-                  <i class="nav-icon fas fa-ticket"></i>
-                  <p>ĐƠN HÀNG</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="<?= base_url() ?>operator" class="nav-link">
-                  <i class="nav-icon fas fa-list-check"></i>
-                  <p>ĐIỀU HÀNH</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="<?= base_url() ?>customers" class="nav-link">
-                  <i class="nav-icon fas fa-person-walking-luggage"></i>
-                  <p>KHÁCH HÀNG</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="<?= base_url() ?>agents" class="nav-link">
-                  <i class="nav-icon fas fa-users"></i>
-
-                  <p>ĐẠI LÝ B2B</p>
-                </a>
-              </li>
-
-              <li class="nav-item has-treeview">
-                <a href="javascript:;" class="nav-link">
-                  <i class="nav-icon fas fa-handshake"></i>
-                  <p>
-                    NHÀ CUNG CẤP
-                    <i class="end fas fa-angle-left"></i>
-                  </p>
-                </a>
-                <ul class="nav nav-treeview">
-                  <li class="nav-item">
-                    <a href="<?= base_url() ?>scm/ks" class="nav-link">
-                      <i class="nav-icon fas fa-hotel"></i>
-                      <p>Hotel</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?= base_url() ?>scm/nh" class="nav-link ">
-                      <i class="nav-icon fas fa-utensils"></i>
-                      <p>Restaurant</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?= base_url() ?>scm/vc" class="nav-link ">
-                      <i class="nav-icon fas fa-car"></i>
-                      <p>Transportation</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?= base_url() ?>scm/hd" class="nav-link ">
-                      <i class="nav-icon fas fa-street-view"></i>
-                      <p>Tour guide</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?= base_url() ?>scm/tq" class="nav-link ">
-                      <i class="nav-icon fas fa-ticket"></i>
-                      <p>Sightseeing tickets</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?= base_url() ?>scm/lt" class="nav-link ">
-                      <i class="nav-icon fas fa-umbrella-beach"></i>
-                      <p>Packed tour</p>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a href="<?= base_url() ?>scm/dv" class="nav-link ">
-                      <i class="nav-icon fas fa-concierge-bell"></i>
-                      <p>Other services</p>
-                    </a>
-                  </li>
-                </ul>
               </li>
               <!--
 		<li class="nav-item has-treeview">
@@ -183,7 +100,7 @@
                 <a href="javascript:;" class="nav-link">
                   <i class="nav-icon fas fa-folder-open"></i>
                   <p>
-                    DANH MỤC
+                    LOCATIONS
                     <i class="end fas fa-angle-left"></i>
                   </p>
                 </a>
@@ -191,7 +108,7 @@
                   <li class="nav-item">
                     <a href="<?= base_url() ?>category/location" class="nav-link">
                       <i class="nav-icon far fa-circle"></i>
-                      <p>Địa điểm</p>
+                      <p>Location</p>
                     </a>
                   </li>
                   <li class="nav-item">
@@ -203,13 +120,6 @@
 
                 </ul>
               </li>
-              <li class="nav-item">
-                <a href="<?= base_url() ?>lockscreen" class="nav-link">
-                  <i class="nav-icon far fa-clock"></i>
-                  <p>Lock screen</p>
-                </a>
-              </li>
-
               <li class="nav-item">
                 <a href="<?= base_url() ?>logout" class="nav-link">
                   <i class="nav-icon far fa-share-from-square"></i>

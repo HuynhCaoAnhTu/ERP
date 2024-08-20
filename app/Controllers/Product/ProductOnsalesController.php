@@ -117,14 +117,26 @@ class ProductOnsalesController extends BaseController
 	public function getOnsaleForm()
 	{
 		$id_product = intval($this->request->getPost('id_product'));
+		$onsale_style = $this->request->getPost('onsale_style');
 		$html = "";
-		$data['onsales'] = 'ADD';
-		$data['ops'] = $this->userModel->getOPS();
-		$data['temp'] = $this->priceOnsaleTemp->findAll();
-		$data['id_product'] = $id_product;
-		$html .= view('product/onsales_inbound', $data);
-		$data['html'] = $html;
-		$data['controller'] = 'product';
+		if ($onsale_style == 4) {
+			$data['ops'] = $this->userModel->getOPS();
+			$data['temp'] = $this->priceOnsaleTemp->findAll();
+			$data['blackout_temp'] = $this->onsalesBlackoutModel->getBlackoutTemp();
+			$data['id_product'] = $id_product;
+			$html .= view('product/onsales_inbound', $data);
+			$data['html'] = $html;
+			$data['controller'] = 'product';
+		} else 	if ($onsale_style == 1) {
+			$data['ops'] = $this->userModel->getOPS();
+			$data['id_product'] = $id_product;
+			$html .= view('product/onsales_singleday', $data);
+			$data['html'] = $html;
+			$data['controller'] = 'product';
+		}
+
+
+
 		return $this->response->setJSON($data);
 	}
 
@@ -137,6 +149,14 @@ class ProductOnsalesController extends BaseController
 		return $this->response->setJSON($data);
 	}
 
+	public function getBlackoutsTemp()
+	{
+		$id_temp = $this->request->getPost('temp_id');
+
+		$data = $this->onsalesBlackoutModel->getTempOnsaleBlackout($id_temp);
+
+		return $this->response->setJSON($data);
+	}
 
 
 	public function getForm()
@@ -157,6 +177,7 @@ class ProductOnsalesController extends BaseController
 				$data['skus'] = $this->priceModel->getOnSalesPrice_PriceGroup($id_onsales);
 				$data['ops'] = $this->userModel->getOPS();
 				$onsales_style = $items->onsales_style;
+				$data['temp'] = $this->priceOnsaleTemp->findAll();
 				try {
 					$html .= view('product/onsales_edit1', $data);
 				} catch (\Throwable $e) {
@@ -175,12 +196,14 @@ class ProductOnsalesController extends BaseController
 				$data['ops'] = $this->userModel->getOPS();
 				$data['blackouts'] = $this->onsalesBlackoutModel->where('id_onsales', $id_onsales)->findAll();
 				$onsales_style = $items->onsales_style;
+				$data['temp'] = $this->priceOnsaleTemp->findAll();
 				try {
 					$html .= view('product/onsales_edit' . $onsales_style, $data);
 					$html = str_replace(array("\r\n", "\r", "\n", "\t"), '', $html);
 				} catch (\Throwable $e) {
 					$html .= $e->getMessage();
 				}
+				$data['temp'] = $this->priceOnsaleTemp->findAll();
 			} else {
 				$html = 'NOT FOUND!';
 			}
@@ -199,23 +222,31 @@ class ProductOnsalesController extends BaseController
 	{
 		$response = array();
 		$id_product = intval($this->request->getPost('id_product'));
+		$id_status = intval($this->request->getPost('id_status'));
 		$price_group_name = '';
 		$html = '';
 		if ($this->validation->check($id_product, 'required|numeric') and ($id_product > 0)) {
-			$res = $this->productonsalesModel->getOnsales($id_product);
+			if ($id_status == '9') {
+				$res = $this->productonsalesModel->where('id_product', $id_product)->orderBy('id', 'DESC')->findAll();
+			} else {
+				$res = $this->productonsalesModel->where('id_product', $id_product)->where('onsales_status', $id_status)->orderBy('id', 'DESC')->findAll();
+			}
+
 			$data['onsalescount'] = count($res);
 			foreach ($res as $key => $items) {
 				$data['items'] = $items;
 				$id_onsales = $items->id;
-				$data['blackouts'] = $this->onsalesBlackoutModel->where('id_onsales', $id_onsales)->findAll();
+				$data['blackouts'] = $this->onsalesBlackoutModel->getBlackouts($id_onsales);
 				$data['skus'] = $this->priceModel->getOnSalesPrice($id_onsales);
 				$data['ops'] = $this->userModel->getOPS();
+				$data['sales'] = $this->userModel->getUserNameById($data['items']->id_sale);
+				$data['ops'] = $this->userModel->getUserNameById($data['items']->id_op);
 				// $priceGroupNames = array_column($data, 'price_group_name');
 				// $data['price_group_name']  = $priceGroupNames ;
 
 				$html .= view('product/onsales_view1', $data);
 			}
-			$html .= '<div class="col-md-3"><button class="dt-button btn btn-success" tabindex="0" type="button" onclick="select_onsales_style()"><span>+ Add new</span></button></div><div class="col-md-9"></div>';
+
 			// $html = str_replace(array("\r\n", "\r", "\n", "\t"), '', $html);
 			$data['html'] = $html;
 		} else {
@@ -289,14 +320,6 @@ class ProductOnsalesController extends BaseController
 	{
 		$onsale_price_data3 = [];
 		$onsale_data = [];
-		$id_pax2 = 0;
-		$id_pax34 = 0;
-		$id_pax56 = 0;
-		$id_pax78 = 0;
-		$id_pax910 = 0;
-		$id_pax1114 = 0;
-		$id_onsales = 0;
-		$uid = uniqid('', true);
 		$response = array();
 		$fields = [
 			// onsale data
@@ -376,113 +399,114 @@ class ProductOnsalesController extends BaseController
 
 		$onsale_data = [
 			'id_product' => $fields['id_product'],
-			'onsales_code' => $fields['onsales_code'],
-			'onsales_name' => $fields['onsales_name'],
-			'onsales_info' => $fields['onsales_info'],
-			'onsales_slot' => $fields['onsales_slot'],
-			'file_b2b' => $fields['file_b2b'],
-			'id_sale' => $fields['id_sale'],
-			'id_op' => $fields['id_op'],
+			'onsales_code' => $fields['onsales_code'] != null ? $fields['onsales_code'] : null,
+			'onsales_name' => $fields['onsales_name'] != null ? $fields['onsales_name'] : null,
+			'onsales_info' => $fields['onsales_info'] != null ? $fields['onsales_info'] : null,
+			'onsales_slot' => $fields['onsales_slot'] != null ? $fields['onsales_slot'] : null,
+			'file_b2b' => $fields['file_b2b'] != null ? $fields['file_b2b'] : null,
+			'id_sale' => $fields['id_sale'] != null ? $fields['id_sale'] : null,
+			'id_op' => $fields['id_op'] != null ? $fields['id_op'] : null,
 			'onsales_status' => $fields['onsales_status'],
 		];
 
 
 		if ($this->onsalesModel->insert($onsale_data)) {
 			$id_onsales = $this->onsalesModel->getInsertID();
-			foreach ($fields['blackout_name'] as $key => $value) {
-				$blackout_data = [
-					'id_onsales' => $id_onsales,
-					'blackout_name' => $value,
-					'blackout_from' => $fields['blackout_from'][$key],
-					'blackout_to' => $fields['blackout_to'][$key],
+			if (!empty($fields['blackout_name'])) {
+				foreach ($fields['blackout_name'] as $key => $value) {
+					$blackout_data = [
+						'id_onsales' => $id_onsales,
+						'blackout_name' => $value,
+						'blackout_from' => $fields['blackout_from'][$key],
+						'blackout_to' => $fields['blackout_to'][$key],
 
-				];
-				$this->onsalesBlackoutModel->insert($blackout_data);
+					];
+					$this->onsalesBlackoutModel->insert($blackout_data);
+				}
 			}
 
-			foreach ($fields['price_for'] as $key => $value) {
-				$onsale_price_data3 = [
-					'id_onsales' => $id_onsales,
-					'price_group' => $fields['price_group3'][$key],
-					'price_for' => $value,
-					'price_valied_from' => $fields['validity_from'][$key],
-					'price_valied_to' => $fields['validity_to'][$key],
-					'price_seat' => $fields['price_seat'][$key],
-					'price_unit' => $fields['price_unit'][$key],
-					'price_currency' => $fields['price_currency'][$key],
-					// 'price_b2c' => $fields['price_b2c'][$key],
-					'price_b2b' => $fields['price_3'][$key],
-					'price_vat' => $fields['price_vat'][$key],
-					'price_notes' => $fields['price_notes'][$key],
-					'select_min' => $fields['select_min'][$key],
-					'select_max' => $fields['select_max'][$key],
-				];
+			if (!empty($fields['price_for'])) {
+				foreach ($fields['price_for'] as $key => $value) {
+					$onsale_price_data3 = [
+						'id_onsales' => $id_onsales,
+						'price_group' => $fields['price_group3'][$key] != null ? $fields['price_group3'][$key] : null,
+						'price_for' => $value != null ? $value : null,
+						'price_valied_from' => $fields['validity_from'][$key] != null ? $fields['validity_from'][$key] : null,
+						'price_valied_to' => $fields['validity_to'][$key] != null ? $fields['validity_to'][$key] : null,
+						'price_seat' => $fields['price_seat'][$key] != null ? $fields['price_seat'][$key] : null,
+						'price_unit' => $fields['price_unit'][$key] != null ? $fields['price_unit'][$key] : null,
+						'price_currency' => $fields['price_currency'][$key] != null ? $fields['price_currency'][$key] : null,
+						// 'price_b2c' => $fields['price_b2c'][$key],
+						'price_b2b' => $fields['price_3'][$key] != null ? $fields['price_3'][$key] : null,
+						'price_vat' => $fields['price_vat'][$key] != null ? $fields['price_vat'][$key] : null,
+						'price_notes' => $fields['price_notes'][$key] != null ? $fields['price_notes'][$key] : null,
+						'select_min' => $fields['select_min'][$key] != null ? $fields['select_min'][$key] : null,
+						'select_max' => $fields['select_max'][$key] != null ? $fields['select_max'][$key] : null,
+					];
 
-				$this->productonsalespriceModel->insert($onsale_price_data3);
-				$id_onsales_price = $this->productonsalespriceModel->getInsertID();
-				$product_code = $this->productModel->getProductCode($fields['id_product']);
-				$product_code_val = $product_code[0]->product_code;
-				$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
-				$data = [
-					'SKU' => $sku
-				];
-				$this->productonsalespriceModel->update($id_onsales_price, $data);
+					$this->productonsalespriceModel->insert($onsale_price_data3);
+					$id_onsales_price = $this->productonsalespriceModel->getInsertID();
+					$product_code = $this->productModel->getProductCode($fields['id_product']);
+					$product_code_val = $product_code[0]->product_code;
+					$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
+					$data = [
+						'SKU' => $sku
+					];
+					$this->productonsalespriceModel->update($id_onsales_price, $data);
 
-				$onsale_price_data4 = [
-					'id_onsales' => $id_onsales,
-					'price_group' => $fields['price_group4'][$key],
-					'price_for' => $value,
-					'price_valied_from' => $fields['validity_from'][$key],
-					'price_valied_to' => $fields['validity_to'][$key],
-					'price_seat' => $fields['price_seat'][$key],
-					'price_unit' => $fields['price_unit'][$key],
-					'price_currency' => $fields['price_currency'][$key],
-					// 'price_b2c' => $fields['price_b2c'][$key],
-					'price_b2b' => $fields['price_4'][$key],
-					'price_vat' => $fields['price_vat'][$key],
-					'price_notes' => $fields['price_notes'][$key],
-					'select_min' => $fields['select_min'][$key],
-					'select_max' => $fields['select_max'][$key],
-				];
+					$onsale_price_data4 = [
+						'id_onsales' => $id_onsales,
+						'price_group' => $fields['price_group4'][$key] != null ? $fields['price_group4'][$key] : null,
+						'price_for' =>  $value != null ? $value : null,
+						'price_valied_from' => $fields['validity_from'][$key] != null ? $fields['validity_from'][$key] : null,
+						'price_valied_to' => $fields['validity_to'][$key] != null ? $fields['validity_to'][$key] : null,
+						'price_seat' => $fields['price_seat'][$key] != null ? $fields['price_seat'][$key] : null,
+						'price_unit' => $fields['price_unit'][$key] != null ? $fields['price_unit'][$key] : null,
+						'price_currency' => $fields['price_currency'][$key] != null ? $fields['price_currency'][$key] : null,
+						// 'price_b2c' => $fields['price_b2c'][$key],
+						'price_b2b' => $fields['price_4'][$key] != null ? $fields['price_4'][$key] : null,
+						'price_vat' => $fields['price_vat'][$key] != null ? $fields['price_vat'][$key] : null,
+						'price_notes' => $fields['price_notes'][$key] != null ? $fields['price_notes'][$key] : null,
+						'select_min' => $fields['select_min'][$key] != null ? $fields['select_min'][$key] : null,
+						'select_max' => $fields['select_max'][$key] != null ? $fields['select_max'][$key] : null,
+					];
 
-				$this->productonsalespriceModel->insert($onsale_price_data4);
-				$id_onsales_price = $this->productonsalespriceModel->getInsertID();
-				$product_code = $this->productModel->getProductCode($fields['id_product']);
-				$product_code_val = $product_code[0]->product_code;
-				$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
-				$data = [
-					'SKU' => $sku
-				];
-				$this->productonsalespriceModel->update($id_onsales_price, $data);
-				$next_key5 = $key + 1;
-				$onsale_price_data5 = [
-					'id_onsales' => $id_onsales,
-					'price_group' => $fields['price_group5'][$key],
-					'price_for' => $value,
-					'price_valied_from' => $fields['validity_from'][$key],
-					'price_valied_to' => $fields['validity_to'][$key],
-					'price_seat' => $fields['price_seat'][$key],
-					'price_b2b' => $fields['price_5'][$key],
-					'price_vat' => $fields['price_vat'][$key],
-					'price_unit' => $fields['price_unit'][$key],
-					'price_currency' => $fields['price_currency'][$key],
-					'price_notes' => $fields['price_notes'][$key],
-					'select_min' => $fields['select_min'][$key],
-					'select_max' => $fields['select_max'][$key],
-				];
+					$this->productonsalespriceModel->insert($onsale_price_data4);
+					$id_onsales_price = $this->productonsalespriceModel->getInsertID();
+					$product_code = $this->productModel->getProductCode($fields['id_product']);
+					$product_code_val = $product_code[0]->product_code;
+					$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
+					$data = [
+						'SKU' => $sku
+					];
+					$this->productonsalespriceModel->update($id_onsales_price, $data);
+					$next_key5 = $key + 1;
+					$onsale_price_data5 = [
+						'id_onsales' => $id_onsales,
+						'price_group' => $fields['price_group5'][$key] != null ? $fields['price_group5'][$key] : null,
+						'price_for' => $value != null ? $value : null,
+						'price_valied_from' => $fields['validity_from'][$key] != null ? $fields['validity_from'][$key] : null,
+						'price_valied_to' => $fields['validity_to'][$key] != null ? $fields['validity_to'][$key] : null,
+						'price_seat' => $fields['price_seat'][$key] != null ? $fields['price_seat'][$key] : null,
+						'price_b2b' => $fields['price_5'][$key] != null ? $fields['price_5'][$key] : null,
+						'price_vat' => $fields['price_vat'][$key] != null ? $fields['price_vat'][$key] : null,
+						'price_unit' => $fields['price_unit'][$key] != null ? $fields['price_unit'][$key] : null,
+						'price_currency' => $fields['price_currency'][$key] != null ? $fields['price_currency'][$key] : null,
+						'price_notes' => $fields['price_notes'][$key] != null ? $fields['price_notes'][$key] : null,
+						'select_min' => $fields['select_min'][$key] != null ? $fields['select_min'][$key] : null,
+						'select_max' => $fields['select_max'][$key] != null ? $fields['select_max'][$key] : null,
+					];
 
-				$this->productonsalespriceModel->insert($onsale_price_data5);
-				$id_onsales_price = $this->productonsalespriceModel->getInsertID();
-				$product_code = $this->productModel->getProductCode($fields['id_product']);
-				$product_code_val = $product_code[0]->product_code;
-				$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
-				$data = [
-					'SKU' => $sku
-				];
-				$this->productonsalespriceModel->update($id_onsales_price, $data);
-				$response['success'] = true;
-				$response['messages'] = lang("App.insert-success");
-
+					$this->productonsalespriceModel->insert($onsale_price_data5);
+					$id_onsales_price = $this->productonsalespriceModel->getInsertID();
+					$product_code = $this->productModel->getProductCode($fields['id_product']);
+					$product_code_val = $product_code[0]->product_code;
+					$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
+					$data = [
+						'SKU' => $sku
+					];
+					$this->productonsalespriceModel->update($id_onsales_price, $data);
+				}
 
 
 
@@ -518,6 +542,8 @@ class ProductOnsalesController extends BaseController
 				// }
 
 			}
+			$response['success'] = true;
+			$response['messages'] = lang("App.insert-success");
 		}
 		return $this->response->setJSON($response);
 		// }
@@ -527,6 +553,7 @@ class ProductOnsalesController extends BaseController
 	public function updateOnsales()
 	{
 		$response = array();
+		$data;
 		$fields = [
 			// onsale data
 			'id_product' => $this->request->getPost('id_product'),
@@ -615,87 +642,94 @@ class ProductOnsalesController extends BaseController
 			'onsales_status' => $fields['onsales_status'],
 		];
 		if ($this->onsalesModel->update($fields['id_onsales'], $onsale_data)) {
-			foreach ($fields['price_for'] as $key => $value) {
-				if ($fields['id_price_3'][$key] == "" && $fields['id_price_4'][$key] == "" && $fields['id_price_3'][$key] == "") {
-					$onsale_price_data3 = [
-						'id_onsales' => $fields['id_onsales'],
-						'price_group' => $fields['price_group3'][$key],
-						'price_for' => $value,
-						'price_valied_from' => $fields['validity_from'][$key],
-						'price_valied_to' => $fields['validity_to'][$key],
-						'price_seat' => $fields['price_seat'][$key],
-						'price_unit' => $fields['price_unit'][$key],
-						// 'price_currency' => $fields['price_currency'][$key],
-						// 'price_b2c' => $fields['price_b2c'][$key],
-						'price_b2b' => $fields['price_3'][$key],
-						'price_vat' => $fields['price_vat'][$key],
-						'price_notes' => $fields['price_notes'][$key],
-						'select_min' => $fields['select_min'][$key],
-						'select_max' => $fields['select_max'][$key],
-					];
+			if ($fields['id_price_3'] == null && $fields['id_price_4'] == null && $fields['id_price_5'] == null) {
 
-					$this->productonsalespriceModel->insert($onsale_price_data3);
-					$id_onsales_price = $this->productonsalespriceModel->getInsertID();
-					$product_code = $this->productModel->getProductCode($fields['id_product']);
-					$product_code_val = $product_code[0]->product_code;
-					$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
-					$data = [
-						'SKU' => $sku
-					];
-					$this->productonsalespriceModel->update($id_onsales_price, $data);
+				if (!empty($fields['price_for'])) {
+					foreach ($fields['price_for'] as $key => $value) {
+						$onsale_price_data3 = [
+							'id_onsales' => $fields['id_onsales'],
+							'price_group' => $fields['price_group3'][$key],
+							'price_for' => $value,
+							'price_valied_from' => $fields['validity_from'][$key],
+							'price_valied_to' => $fields['validity_to'][$key],
+							'price_seat' => $fields['price_seat'][$key],
+							'price_unit' => $fields['price_unit'][$key],
+							'price_currency' => $fields['price_currency'][$key],
+							'price_b2b' => $fields['price_3'][$key],
+							'price_vat' => $fields['price_vat'][$key],
+							'price_notes' => $fields['price_notes'][$key],
+							'select_min' => $fields['select_min'][$key],
+							'select_max' => $fields['select_max'][$key],
+						];
 
-					$onsale_price_data4 = [
-						'id_onsales' => $fields['id_onsales'],
-						'price_group' => $fields['price_group4'][$key],
-						'price_for' => $value,
-						'price_valied_from' => $fields['validity_from'][$key],
-						'price_valied_to' => $fields['validity_to'][$key],
-						'price_seat' => $fields['price_seat'][$key],
-						'price_unit' => $fields['price_unit'][$key],
-						// 'price_currency' => $fields['price_currency'][$key],
-						// 'price_b2c' => $fields['price_b2c'][$key],
-						'price_b2b' => $fields['price_4'][$key],
-						'price_vat' => $fields['price_vat'][$key],
-						'price_notes' => $fields['price_notes'][$key],
-						'select_min' => $fields['select_min'][$key],
-						'select_max' => $fields['select_max'][$key],
-					];
+						$this->productonsalespriceModel->insert($onsale_price_data3);
+						$id_onsales_price = $this->productonsalespriceModel->getInsertID();
+						$product_code = $this->productModel->getProductCode($fields['id_product']);
+						$product_code_val = $product_code[0]->product_code;
+						$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
+						$data = [
+							'SKU' => $sku
+						];
+						$this->productonsalespriceModel->update($id_onsales_price, $data);
 
-					$this->productonsalespriceModel->insert($onsale_price_data4);
-					$id_onsales_price = $this->productonsalespriceModel->getInsertID();
-					$product_code = $this->productModel->getProductCode($fields['id_product']);
-					$product_code_val = $product_code[0]->product_code;
-					$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
-					$data = [
-						'SKU' => $sku
-					];
-					$this->productonsalespriceModel->update($id_onsales_price, $data);
-					$onsale_price_data5 = [
-						'id_onsales' => $fields['id_onsales'],
-						'price_group' => $fields['price_group5'][$key],
-						'price_for' => $value,
-						'price_valied_from' => $fields['validity_from'][$key],
-						'price_valied_to' => $fields['validity_to'][$key],
-						'price_seat' => $fields['price_seat'][$key],
-						'price_b2b' => $fields['price_5'][$key],
-						'price_vat' => $fields['price_vat'][$key],
-						'price_unit' => $fields['price_unit'][$key],
-						// 'price_currency' => $fields['price_currency'][$key],
-						'price_notes' => $fields['price_notes'][$key],
-						'select_min' => $fields['select_min'][$key],
-						'select_max' => $fields['select_max'][$key],
-					];
+						$onsale_price_data4 = [
+							'id_onsales' => $fields['id_onsales'],
+							'price_group' => $fields['price_group4'][$key],
+							'price_for' =>  $value,
+							'price_valied_from' => $fields['validity_from'][$key],
+							'price_valied_to' => $fields['validity_to'][$key],
+							'price_seat' => $fields['price_seat'][$key],
+							'price_unit' => $fields['price_unit'][$key],
+							'price_currency' => $fields['price_currency'][$key],
+							// 'price_b2c' => $fields['price_b2c'][$key],
+							'price_b2b' => $fields['price_4'][$key],
+							'price_vat' => $fields['price_vat'][$key],
+							'price_notes' => $fields['price_notes'][$key],
+							'select_min' => $fields['select_min'][$key],
+							'select_max' => $fields['select_max'][$key],
+						];
 
-					$this->productonsalespriceModel->insert($onsale_price_data5);
-					$id_onsales_price = $this->productonsalespriceModel->getInsertID();
-					$product_code = $this->productModel->getProductCode($fields['id_product']);
-					$product_code_val = $product_code[0]->product_code;
-					$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
-					$data = [
-						'SKU' => $sku
-					];
-					$this->productonsalespriceModel->update($id_onsales_price, $data);
-				} else {
+						$this->productonsalespriceModel->insert($onsale_price_data4);
+						$id_onsales_price = $this->productonsalespriceModel->getInsertID();
+						$product_code = $this->productModel->getProductCode($fields['id_product']);
+						$product_code_val = $product_code[0]->product_code;
+						$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
+						$data = [
+							'SKU' => $sku
+						];
+						$this->productonsalespriceModel->update($id_onsales_price, $data);
+
+						$onsale_price_data5 = [
+							'id_onsales' => $fields['id_onsales'],
+							'price_group' => $fields['price_group5'][$key],
+							'price_for' => $value,
+							'price_valied_from' => $fields['validity_from'][$key],
+							'price_valied_to' => $fields['validity_to'][$key],
+							'price_seat' => $fields['price_seat'][$key],
+							'price_b2b' => $fields['price_5'][$key],
+							'price_vat' => $fields['price_vat'][$key],
+							'price_unit' => $fields['price_unit'][$key],
+							'price_currency' => $fields['price_currency'][$key],
+							'price_notes' => $fields['price_notes'][$key],
+							'select_min' => $fields['select_min'][$key],
+							'select_max' => $fields['select_max'][$key],
+						];
+
+						$this->productonsalespriceModel->insert($onsale_price_data5);
+						$id_onsales_price = $this->productonsalespriceModel->getInsertID();
+						$product_code = $this->productModel->getProductCode($fields['id_product']);
+						$product_code_val = $product_code[0]->product_code;
+						$sku = $product_code_val . "_" . $fields['onsales_code'] . "_" . $id_onsales_price;
+						$data = [
+							'SKU' => $sku
+						];
+						$this->productonsalespriceModel->update($id_onsales_price, $data);
+					}
+				}
+			} else {
+
+				foreach ($fields['price_for'] as $key => $value) {
+
 					$onsale_price_data3 = [
 						'price_group' => $fields['price_group3'][$key],
 						'price_for' => $value,
@@ -752,11 +786,12 @@ class ProductOnsalesController extends BaseController
 					];
 
 					$this->productonsalespriceModel->update($fields['id_price_5'][$key], $onsale_price_data5);
-
-
-					$response['success'] = true;
-					$response['messages'] = lang("App.insert-success");
 				}
+
+
+
+
+
 
 
 
@@ -792,6 +827,8 @@ class ProductOnsalesController extends BaseController
 				// 	// }
 
 			}
+			$response['success'] = true;
+			$response['messages'] = lang("App.insert-success");
 		}
 		return $this->response->setJSON($response);
 		// }

@@ -28,6 +28,14 @@ class ProductModel extends Model
 		//		$result= $resultsql->getResultArray(); // do query
 		return $result;
 	}
+
+	public function getAll_en()
+	{
+		$db = db_connect();
+		$result = $db->query("SELECT p.id, p.product_code, p.product_name, t.value_en as product_duration, c.categories_name, (SELECT `location`.`location` FROM `location` WHERE `location`.`id_location` = p.product_travel_from LIMIT 1) as travel_from, (SELECT group_concat(`location`.`location` separator ', ') FROM `location` WHERE FIND_IN_SET(`location`.`id_location`, p.product_location)) as travel_to, p.product_lang, p.product_status, u.email as owner, p.update_on FROM `erp_product` p LEFT JOIN `erp_categories` c ON p.product_categories = c.id LEFT JOIN `erp_product_duration` t ON p.product_duration = t.id LEFT JOIN `erp_auth` u ON p.created_by = u.id_auth WHERE product_lang ='en';")->getResult();
+		//		$result= $resultsql->getResultArray(); // do query
+		return $result;
+	}
 	public function getProductCode($id)
 	{
 		$db = db_connect();

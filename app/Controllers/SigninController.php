@@ -65,7 +65,7 @@ class SigninController extends Controller
 					'ostyle' => $data['uactive'],
 					'img' => $user_img,
 					//'lang' => $data['lang'],
-					'lang' => 'vi',//
+					'lang' => 'en',//
                     'isLoggedIn' => TRUE
                 ];
                 $session->set($ses_data);

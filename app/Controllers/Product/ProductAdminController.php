@@ -87,11 +87,11 @@ class ProductAdminController extends BaseController
 
 			$data = [
 				'sitetitle'	=> 'ERP Travel',
-				'pagetitle'	=> 'ERP/Product/Add',
-				'pagetitle_mobile'	=> 'Product/Add',
+				'pagetitle'	=> 'ERP/Product/Edit',
+				'pagetitle_mobile'	=> 'Product/Edit',
 				'controller'	=> 'product',
-				'title'     		=> 'Add new product',
-				'lang'     		=> 'vn',
+				'title'     		=> 'Edit product',
+				'lang'     		=> 'en',
 				'translate_id' => $id
 			];
 			return view('product/product_add', $data);
@@ -305,6 +305,7 @@ class ProductAdminController extends BaseController
 		$fields['product_desc'] = $this->request->getPost('product_desc');
 		$fields['product_rules'] = $this->request->getPost('product_rules');
 		$fields['product_images'] = $this->request->getPost('product_images');
+		$fields['product_status'] = $this->request->getPost('product_status');
 		//		$fields['product_lang'] = $this->request->getPost('product_lang');
 		//		$fields['id_master'] = $this->request->getPost('id_master');
 		//$fields['product_filter'] = $this->request->getPost('product_filter');
@@ -415,13 +416,13 @@ class ProductAdminController extends BaseController
 
 		$id_product = intval($this->request->getPost('id'));
 		$html = '';
-			$res = $this->productonsalesModel->getOnsales($id_product);
+			$res = $this->productonsalesModel->where('id_product',$id_product)->where('onsales_status',1)->findAll();
 			$data['onsalescount'] = count($res);
 			foreach ($res as $key => $items) {
 				$data['items'] = $items;
 				$id_onsales = $items->id;
 				$data['skus'] = $this->priceModel->getOnSalesPrice($id_onsales);
-				$data['blackouts'] = $this->onsalesBlackoutModel->where('id_onsales',$id_onsales)->findAll();
+				$data['blackouts'] = $this->onsalesBlackoutModel->getBlackouts($id_onsales);
 				// $priceGroupNames = array_column($data, 'price_group_name');
 				// $data['price_group_name']  = $priceGroupNames ;
 

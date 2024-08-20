@@ -17,6 +17,7 @@
 
     <!-- SweetAlert2 Bootstrap or Dark -->
     <link rel="stylesheet" href="<?= base_url('asset/css/sweetalert2-dark.min.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('asset/css/index.css') ?>">
     <!-- DataTables -->
     <link rel="stylesheet" href="<?= base_url('asset/plugins/datatables/DataTables-1.11.3/css/dataTables.bootstrap5.min.css'); ?>">
     <link rel="stylesheet" href="<?= base_url('asset/plugins/datatables/Responsive-2.2.9/css/responsive.bootstrap5.min.css'); ?>">
@@ -141,9 +142,18 @@
         border-radius: 8px;
         margin-bottom: 20px;
     }
-    .onsales_info{
+
+    .onsales_info {
         margin-left: 20px;
         color: gray;
+    }
+
+    .text-end {
+        text-align: right !important;
+    }
+
+    .text-mid {
+        text-align: center !important;
     }
 </style>
 
@@ -154,8 +164,8 @@
                 <ol class="breadcrumb">
                     <li><a href="#">Trang chủ</a></li>
                     <li><i style="font-size: 12px; line-height: 10px; " class="fa fa-greater-than"></i></li>
-                    <li><a href="#"><?=$product_category->categories_name?></a></li>
-                    
+                    <li><a href="#"><?= $product_category->categories_name ?></a></li>
+
                 </ol>
             </div>
 

@@ -39,7 +39,7 @@ class SCMController extends BaseController
 					'pagetitle'	=> 'Supply Chain Management / '.$supname['gname'],
 					'pagetitle_mobile'	=> $supname['gname'],
 					'controller'	=> 'scm/'.$sup,
-					'title'     	=> $supname.' manager',
+					'title'     	=> $supname['gname'].' manager',
 					'ogroup'	=> $this->ogroup,
 					'ostyle' => $supname['id'],
 					'ostylename' => $supname['gname'],
